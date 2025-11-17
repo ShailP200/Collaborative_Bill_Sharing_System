@@ -1,0 +1,188 @@
+body {
+  background-color: #f7f9fb;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  color: #333;
+}
+
+h1 {
+  color: #2b5eff;
+}
+
+/* Login Page */
+
+.in_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f7f9fb;
+  font-family: Arial, sans-serif;
+}
+
+.in_heading {
+  color: #2b5eff;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.in_login-box {
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+  width: 320px;
+  text-align: left;
+}
+
+.in_login-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.in_label {
+  display: block;
+  margin-bottom: 6px;
+  color: #555;
+  font-weight: bold;
+}
+
+.in_input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.in_input:focus {
+  border-color: #2b5eff;
+  outline: none;
+  box-shadow: 0 0 3px rgba(43,94,255,0.3);
+}
+
+.in_btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #2b5eff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.in_btn:hover {
+  background-color: #1f47d1;
+}
+
+.in_register-text {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.in_register-link {
+  color: #2b5eff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.in_register-link:hover {
+  text-decoration: underline;
+}
+
+/* Register Page */
+
+.reg_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #eef3f7;
+  font-family: Arial, sans-serif;
+}
+
+.reg_heading {
+  color: #1f47d1;
+  font-size: 2rem;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.reg_box {
+  background-color: #fff;
+  padding: 35px 45px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  width: 340px;
+}
+
+.reg_title {
+  text-align: center;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.reg_label {
+  display: block;
+  margin-bottom: 6px;
+  color: #444;
+  font-weight: bold;
+}
+
+.reg_input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.reg_input:focus {
+  border-color: #1f47d1;
+  outline: none;
+  box-shadow: 0 0 4px rgba(31, 71, 209, 0.3);
+}
+
+.reg_btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #1f47d1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reg_btn:hover {
+  background-color: #1636a8;
+}
+
+.reg_text {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.reg_link {
+  color: #1f47d1;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.reg_link:hover {
+  text-decoration: underline;
+}

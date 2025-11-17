@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Expense Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="reg_container">
+    <h1 class="reg_heading">Register for Expense Tracker</h1>
+
+    <div class="reg_box">
+      <h2 class="reg_title">Create Account</h2>
+
+      <form id="reg_registerForm">
+        <label class="reg_label" for="reg_name">Full Name</label>
+        <input id="reg_name" class="reg_input" type="text" placeholder="Your name" required>
+
+        <label class="reg_label" for="reg_email">Email</label>
+        <input id="reg_email" class="reg_input" type="email" placeholder="Your email" required>
+
+        <label class="reg_label" for="reg_phone">Phone</label>
+        <input id="reg_phone" class="reg_input" type="text" placeholder="Your phone number">
+
+        <label class="reg_label" for="reg_password">Password</label>
+        <input id="reg_password" class="reg_input" type="password" placeholder="Your password" required>
+
+        <button type="submit" class="reg_btn">Register</button>
+      </form>
+
+      <p class="reg_text">
+        Already have an account?
+        <a href="index.html" class="reg_link">Login here</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
