@@ -186,3 +186,153 @@ h1 {
 .reg_link:hover {
   text-decoration: underline;
 }
+
+/* Dashboard Page  */
+
+.da_app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+  background-color: #f7f9fb;
+}
+
+.da_header {
+  padding: 16px 20px;
+  background-color: #2b5eff;
+  color: #fff;
+}
+
+.da_title {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.da_subtitle {
+  margin: 4px 0 0;
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+.da_content {
+  flex: 1;
+  padding: 12px 16px 70px; 
+  overflow-y: auto;
+}
+
+.da_main-inner {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Sections */
+
+.da_section {
+  display: none;
+}
+
+.da_section--active {
+  display: block;
+}
+
+.da_section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.da_section-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.da_search {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  width: 160px;
+}
+
+.da_section-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.da_toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.da_toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+
+/* Panel that holds content (friends / activity / account) */
+
+.da_panel {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e0e4ee;
+  padding: 12px 14px;
+}
+
+.da_friend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.da_friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin: 8px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e4ee;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s, background-color 0.2s;
+}
+
+.da_friend-item--negative:hover {
+  background-color: #fdecec;
+}
+
+.da_friend-item--positive:hover {
+  background-color: #e7f7ec; 
+}
+
+.da_friend-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.da_friend-name {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.da_friend-amount {
+  font-size: 0.95rem;
+  font-weight: bold;
+}
+
+.da_friend-amount--negative {
+  color: #d9534f; 
+}
+
+.da_friend-amount--positive {
+  color: #28a745;
+}
+

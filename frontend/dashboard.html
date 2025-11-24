@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Expense Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="da_app">
+
+    <header class="da_header">
+      <h1 class="da_title">Dashboard</h1>
+      <h2 class="da_subtitle">Collaborative Bill Sharing System</h2>
+    </header>
+
+    <main class="da_content">
+      <div class="da_main-inner">
+
+        <!-- Friends section -->
+        <section id="da_friendsSection" class="da_section da_section--active">
+          <div class="da_section-header">
+            <h2 class="da_section-title">Friends</h2>
+            <div class="da_section-header-right">
+              <label class="da_toggle">
+                <input type="checkbox" id="da_showZeroFriends">
+                <span>Show settled</span>
+              </label>
+              <input
+                id="da_friendSearch"
+                class="da_search"
+                type="text"
+                placeholder="Search friends..."
+              />
+            </div>
+          </div>
+
+          <div class="da_panel">
+            <ul id="da_friendsList" class="da_friend-list">
+              <!-- Filled by JS -->
+            </ul>
+         
+            <button id="da_addExpenseBtn" class="da_add-expense-btn">
+                + Add Expense
+            </button>
+          </div>
+        </section>
+
+        <!-- Activity section -->
+        <section id="da_activitySection" class="da_section">
+          <div class="da_section-header">
+            <h2 class="da_section-title">Activity</h2>
+          </div>
+
+          <div class="da_panel">
+            <p class="da_activity-title">Recent activity</p>
+            <ul id="da_activityList" class="da_transaction-list">
+              <!-- Filled by JS -->
+            </ul>
+          </div>
+        </section>
+
+
+        <!-- Account section -->
+        <section id="da_accountSection" class="da_section">
+          <div class="da_section-header">
+            <h2 class="da_section-title">Account</h2>
+          </div>
+
+          <div class="da_panel">
+            <div class="da_account-box">
+              <p><strong>Name:</strong> <span id="da_accountName">Loading...</span></p>
+              <p><strong>Email:</strong> <span id="da_accountEmail">Loading...</span></p>
+              <p>
+                <strong>Total Balance:</strong>
+                <span id="da_accountBalance" style="font-weight:bold;">$0.00</span>
+              </p>
+            </div>
+
+            <button id="da_logoutBtn" class="da_logout-btn">Log Out</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom nav (centred content) -->
+    <nav class="da_bottom-nav">
+      <div class="da_bottom-inner">
+        <button class="da_nav-btn da_nav-btn--active" data-target="friends">Friends</button>
+        <button class="da_nav-btn" data-target="activity">Activity</button>
+        <button class="da_nav-btn" data-target="account">Account</button>
+      </div>
+    </nav>
+  </div>
+  <script src="js/script.js"></script>
+</body>
+</html>

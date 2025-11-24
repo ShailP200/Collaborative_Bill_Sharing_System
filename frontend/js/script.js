@@ -80,3 +80,75 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// DASHBOARD PAGE 
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Are we on the dashboard page?
+  const daApp = document.querySelector(".da_app");
+  if (!daApp) return;
+
+  // Make sure user is logged in
+  const userData = localStorage.getItem("loggedInUser");
+  if (!userData) {
+    alert("Please log in first!");
+    window.location.href = "index.html";
+    return;
+  }
+
+  const currentUser = JSON.parse(userData);
+  console.log("Dashboard for user:", currentUser);
+
+  // Account fields
+  const daAccountNameEl = document.getElementById("da_accountName");
+  const daAccountEmailEl = document.getElementById("da_accountEmail");
+  const daAccountBalanceEl = document.getElementById("da_accountBalance");
+  const daLogoutBtn = document.getElementById("da_logoutBtn");
+  const daShowZeroFriendsCheckbox = document.getElementById("da_showZeroFriends");
+
+  if (daAccountNameEl) daAccountNameEl.textContent = currentUser.name || "N/A";
+  if (daAccountEmailEl) daAccountEmailEl.textContent = currentUser.email || "N/A";
+
+  // Friends / Activity elements
+  const daFriendsListEl = document.getElementById("da_friendsList");
+  const daFriendSearchEl = document.getElementById("da_friendSearch");
+  const daActivityListEl = document.getElementById("da_activityList");
+
+  // Declare missing variables
+  const daNavButtons = document.querySelectorAll(".da_nav-btn");
+  const daSections = {
+    friends: document.getElementById("da_friendsSection"),
+    activity: document.getElementById("da_activitySection"),
+    account: document.getElementById("da_accountSection")
+  };
+  const daAddExpenseBtn = document.getElementById("da_addExpenseBtn");
+
+  // Bottom navigation (Friends / Activity / Account)
+  daNavButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.target;
+
+      daNavButtons.forEach((b) => b.classList.remove("da_nav-btn--active"));
+      btn.classList.add("da_nav-btn--active");
+
+      Object.keys(daSections).forEach((key) => {
+        if (daSections[key]) daSections[key].classList.remove("da_section--active");
+      });
+      if (daSections[target]) daSections[target].classList.add("da_section--active");
+
+      if (daAddExpenseBtn) {
+        daAddExpenseBtn.style.display = target === "account" ? "none" : "block";
+      }
+    });
+  });
+
+  // Logout
+  if (daLogoutBtn) {
+    daLogoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("loggedInUser");
+      openInfoModal("Logged out successfully.", "Logout");
+      window.location.href = "index.html";
+    });
+  }
+
+});
