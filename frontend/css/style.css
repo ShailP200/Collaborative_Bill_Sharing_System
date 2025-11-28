@@ -336,3 +336,81 @@ h1 {
   color: #28a745;
 }
 
+
+/* Transactions */
+
+.da_transaction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.da_transaction-item {
+  padding: 8px 4px;
+  border-bottom: 1px solid #e5e7ef;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.da_transaction-item:last-child {
+  border-bottom: none;
+}
+
+.da_transaction-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.da_transaction-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Make Edit/Delete/Cancel buttons bigger and clearer */
+.da_transaction-btn {
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  min-width: 90px;
+  transition: background 0.25s ease;
+}
+
+.da_transaction-btn--edit {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.da_transaction-btn--edit:hover {
+  background-color: #2179b5;
+}
+
+.da_transaction-btn--delete {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.da_transaction-btn--delete:hover {
+  background-color: #c0392b;
+}
+
+/* General hover for neutral/cancel */
+.da_transaction-btn:hover {
+  background-color: #e3e7ed;
+}
+
+/* Slightly spread them evenly */
+.da_modal-footer--space {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+
+.da_text-muted {
+  color: #666;
+  font-size: 0.9rem;
+}
+
