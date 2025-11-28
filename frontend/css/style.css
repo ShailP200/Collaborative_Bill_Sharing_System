@@ -414,3 +414,175 @@ h1 {
   font-size: 0.9rem;
 }
 
+
+/* Account section */
+
+.da_account-box {
+  padding: 8px 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e4ee;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.da_logout-btn {
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background-color: #d9534f;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.da_logout-btn:hover {
+  background-color: #c9302c;
+}
+
+.da_account-box {
+  padding: 8px 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e4ee;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.da_account-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.da_account-value {
+  color: #555;
+}
+
+.da_account-separator {
+  border: none;
+  border-top: 1px solid #e0e4ee;
+  margin: 8px 0;
+}
+
+.da_account-balance {
+  font-weight: 700;
+}
+
+.da_account-balance-positive {
+  color: #28a745; /* green */
+}
+
+.da_account-balance-negative {
+  color: #d9534f; /* red */
+}
+
+/* Buttons on account page */
+
+.da_update-btn {
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background-color: #2b5eff;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.da_update-btn:hover {
+  background-color: #1f47d1;
+}
+
+.da_logout-btn {
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background-color: #d9534f;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.da_logout-btn:hover {
+  background-color: #c9302c;
+}
+
+.da_panel-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.da_add-expense-btn {
+  position: fixed;
+  bottom: 60px;
+  right: calc(50% - 350px + 16px); 
+
+  padding: 12px 18px;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(90deg, #2b5eff, #1f47d1);
+  background-size: 200% 100%;
+  background-position: 0% 0%;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background-position 0.3s ease-out;
+}
+
+.da_add-expense-btn:hover {
+  background-position: 100% 0%;
+}
+
+@media (max-width: 700px) {
+  .da_add-expense-btn {
+    right: 16px;
+    bottom: 60px;
+  }
+}
+
+
+
+
+/* Bottom navigation */
+
+.da_bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background-color: #ffffff;
+  border-top: 1px solid #d3d7e2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.da_bottom-inner {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.da_nav-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  padding: 8px 0;
+  cursor: pointer;
+  color: #555;
+}
+
+.da_nav-btn--active {
+  color: #2b5eff;
+  font-weight: bold;
+  border-top: 3px solid #2b5eff;
+}

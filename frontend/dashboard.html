@@ -1,140 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Expense Tracker</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <div class="da_app">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Expense Tracker</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="da_app">
+      <header class="da_header">
+        <h1 class="da_title">Dashboard</h1>
+        <h2 class="da_subtitle">Collaborative Bill Sharing System</h2>
+      </header>
 
-    <header class="da_header">
-      <h1 class="da_title">Dashboard</h1>
-      <h2 class="da_subtitle">Collaborative Bill Sharing System</h2>
-    </header>
-
-    <main class="da_content">
-      <div class="da_main-inner">
-
-        <!-- Friends section -->
-        <section id="da_friendsSection" class="da_section da_section--active">
-          <div class="da_section-header">
-            <h2 class="da_section-title">Friends</h2>
-            <div class="da_section-header-right">
-              <label class="da_toggle">
-                <input type="checkbox" id="da_showZeroFriends">
-                <span>Show settled</span>
-              </label>
-              <input
-                id="da_friendSearch"
-                class="da_search"
-                type="text"
-                placeholder="Search friends..."
-              />
+      <main class="da_content">
+        <div class="da_main-inner">
+          <!-- Friends section -->
+          <section id="da_friendsSection" class="da_section da_section--active">
+            <div class="da_section-header">
+              <h2 class="da_section-title">Friends</h2>
+              <div class="da_section-header-right">
+                <label class="da_toggle">
+                  <input type="checkbox" id="da_showZeroFriends" />
+                  <span>Show settled</span>
+                </label>
+                <input
+                  id="da_friendSearch"
+                  class="da_search"
+                  type="text"
+                  placeholder="Search friends..."
+                />
+              </div>
             </div>
-          </div>
 
-          <div class="da_panel">
-            <ul id="da_friendsList" class="da_friend-list">
-              <!-- Filled by JS -->
-            </ul>
-         
-            <button id="da_addExpenseBtn" class="da_add-expense-btn">
+            <div class="da_panel">
+              <ul id="da_friendsList" class="da_friend-list">
+                <!-- Filled by JS -->
+              </ul>
+
+              <button id="da_addExpenseBtn" class="da_add-expense-btn">
                 + Add Expense
-            </button>
-          </div>
-        </section>
+              </button>
+            </div>
+          </section>
 
-        <!-- Activity section -->
-        <section id="da_activitySection" class="da_section">
-          <div class="da_section-header">
-            <h2 class="da_section-title">Activity</h2>
-          </div>
-
-          <div class="da_panel">
-            <p class="da_activity-title">Recent activity</p>
-            <ul id="da_activityList" class="da_transaction-list">
-              <!-- Filled by JS -->
-            </ul>
-          </div>
-        </section>
-
-
-        <!-- Account section -->
-        <section id="da_accountSection" class="da_section">
-          <div class="da_section-header">
-            <h2 class="da_section-title">Account</h2>
-          </div>
-
-          <div class="da_panel">
-            <div class="da_account-box">
-              <p><strong>Name:</strong> <span id="da_accountName">Loading...</span></p>
-              <p><strong>Email:</strong> <span id="da_accountEmail">Loading...</span></p>
-              <p>
-                <strong>Total Balance:</strong>
-                <span id="da_accountBalance" style="font-weight:bold;">$0.00</span>
-              </p>
+          <!-- Activity section -->
+          <section id="da_activitySection" class="da_section">
+            <div class="da_section-header">
+              <h2 class="da_section-title">Activity</h2>
             </div>
 
-            <button id="da_logoutBtn" class="da_logout-btn">Log Out</button>
-          </div>
-        </section>
+            <div class="da_panel">
+              <p class="da_activity-title">Recent activity</p>
+              <ul id="da_activityList" class="da_transaction-list">
+                <!-- Filled by JS -->
+              </ul>
+            </div>
+          </section>
 
-      </div>
-    </main>
+          <!-- Account section -->
+          <section id="da_accountSection" class="da_section">
+            <div class="da_section-header">
+              <h2 class="da_section-title">Account</h2>
+            </div>
 
-    <!-- Bottom nav (centred content) -->
-    <nav class="da_bottom-nav">
-      <div class="da_bottom-inner">
-        <button class="da_nav-btn da_nav-btn--active" data-target="friends">Friends</button>
-        <button class="da_nav-btn" data-target="activity">Activity</button>
-        <button class="da_nav-btn" data-target="account">Account</button>
-      </div>
-    </nav>
-  </div>
-  <script src="js/script.js"></script>
-</body>
+            <div class="da_panel">
+              <div class="da_account-box">
+                <p>
+                  <strong>Name:</strong>
+                  <span id="da_accountName">Loading...</span>
+                </p>
+                <p>
+                  <strong>Email:</strong>
+                  <span id="da_accountEmail">Loading...</span>
+                </p>
+                <p>
+                  <strong>Total Balance:</strong>
+                  <span id="da_accountBalance" style="font-weight: bold"
+                    >$0.00</span
+                  >
+                </p>
+              </div>
+
+              <button id="da_logoutBtn" class="da_logout-btn">Log Out</button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Bottom nav (centred content) -->
+      <nav class="da_bottom-nav">
+        <div class="da_bottom-inner">
+          <button class="da_nav-btn da_nav-btn--active" data-target="friends">
+            Friends
+          </button>
+          <button class="da_nav-btn" data-target="activity">Activity</button>
+          <button class="da_nav-btn" data-target="account">Account</button>
+        </div>
+      </nav>
+    </div>
+    <script src="js/script.js"></script>
+  </body>
 </html>
 
-
 <!-- Modal for choosing Edit / Delete on a transaction -->
-  <div id="da_txActionModal" class="da_modal">
-    <div class="da_modal-content">
-      <button id="da_txActionClose" class="da_modal-close">&times;</button>
-      <h3 class="da_modal-title">Choose action</h3>
+<div id="da_txActionModal" class="da_modal">
+  <div class="da_modal-content">
+    <button id="da_txActionClose" class="da_modal-close">&times;</button>
+    <h3 class="da_modal-title">Choose action</h3>
 
-      <p><strong>Description:</strong> <span id="da_txActionDesc"></span></p>
-      <p><strong>Date:</strong> <span id="da_txActionDate"></span></p>
-      <p><strong>Amount:</strong> <span id="da_txActionAmount"></span></p>
+    <p><strong>Description:</strong> <span id="da_txActionDesc"></span></p>
+    <p><strong>Date:</strong> <span id="da_txActionDate"></span></p>
+    <p><strong>Amount:</strong> <span id="da_txActionAmount"></span></p>
+
+    <div class="da_modal-footer da_modal-footer--space">
+      <button
+        id="da_txDeleteBtn"
+        class="da_transaction-btn da_transaction-btn--delete"
+      >
+        Delete
+      </button>
+      <button
+        id="da_txEditBtn"
+        class="da_transaction-btn da_transaction-btn--edit"
+      >
+        Edit
+      </button>
+      <button id="da_txCancelBtn" class="da_transaction-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for friend transactions -->
+<div id="da_modal" class="da_modal">
+  <div class="da_modal-content">
+    <button id="da_modalClose" class="da_modal-close">&times;</button>
+    <h3 id="da_modalTitle" class="da_modal-title">Transactions</h3>
+
+    <ul id="da_modalTransactions" class="da_transaction-list">
+      <!-- Filled by JS -->
+    </ul>
+
+    <div class="da_modal-footer">
+      <button id="da_settleUpBtn" class="da_settle-btn">Settle Up</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Add Expense -->
+<div id="da_expenseModal" class="da_modal">
+  <div class="da_modal-content">
+    <button id="da_expenseModalClose" class="da_modal-close">&times;</button>
+    <h3 class="da_modal-title">Add Expense</h3>
+
+    <form id="da_expenseForm" class="da_expense-form">
+      <label class="da_label" for="da_expenseDesc">Description</label>
+      <input
+        type="text"
+        id="da_expenseDesc"
+        class="da_input"
+        placeholder="e.g., Costco run"
+      />
+
+      <label class="da_label" for="da_expenseAmount">Total Amount</label>
+      <input
+        type="number"
+        step="0.01"
+        id="da_expenseAmount"
+        class="da_input"
+        placeholder="0.00"
+      />
+      <label class="da_label">Friends involved</label>
+
+      <div class="da_expense-friends-wrapper">
+        <div id="da_tokenizer" class="da_tokenizer">
+          <div id="da_selectedChips" class="da_selected-chips"></div>
+          <input
+            type="text"
+            id="da_expenseFriendSearch"
+            class="da_tokenizer-input"
+            placeholder="Search friends…"
+            autocomplete="off"
+          />
+        </div>
+
+        <div
+          id="da_expenseFriendsContainer"
+          class="da_expense-friends da_expense-friends-dropdown"
+        ></div>
+      </div>
+
+      <label class="da_label" for="da_expenseType">Split Type</label>
+      <select id="da_expenseType" class="da_input">
+        <option value="equal">Equal</option>
+        <option value="amount">By Amount</option>
+      </select>
+
+      <div id="da_splitExtraFields" class="da_split-extra"></div>
+
+      <div id="da_expenseError" class="da_error-text"></div>
 
       <div class="da_modal-footer da_modal-footer--space">
-        <button id="da_txDeleteBtn" class="da_transaction-btn da_transaction-btn--delete">
-          Delete
-        </button>
-        <button id="da_txEditBtn" class="da_transaction-btn da_transaction-btn--edit">
-          Edit
-        </button>
-        <button id="da_txCancelBtn" class="da_transaction-btn">
+        <button
+          type="button"
+          id="da_expenseCancel"
+          class="da_transaction-btn da_transaction-btn--delete"
+        >
           Cancel
         </button>
+        <button type="submit" class="da_settle-btn">Add</button>
       </div>
-    </div>
+    </form>
   </div>
-
-
-  <!-- Modal for friend transactions -->
-  <div id="da_modal" class="da_modal">
-    <div class="da_modal-content">
-      <button id="da_modalClose" class="da_modal-close">&times;</button>
-      <h3 id="da_modalTitle" class="da_modal-title">Transactions</h3>
-
-      <ul id="da_modalTransactions" class="da_transaction-list">
-        <!-- Filled by JS -->
-      </ul>
-
-      <div class="da_modal-footer">
-        <button id="da_settleUpBtn" class="da_settle-btn">Settle Up</button>
-      </div>
-    </div>
-  </div>
+</div>
