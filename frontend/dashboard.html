@@ -96,3 +96,45 @@
   <script src="js/script.js"></script>
 </body>
 </html>
+
+
+<!-- Modal for choosing Edit / Delete on a transaction -->
+  <div id="da_txActionModal" class="da_modal">
+    <div class="da_modal-content">
+      <button id="da_txActionClose" class="da_modal-close">&times;</button>
+      <h3 class="da_modal-title">Choose action</h3>
+
+      <p><strong>Description:</strong> <span id="da_txActionDesc"></span></p>
+      <p><strong>Date:</strong> <span id="da_txActionDate"></span></p>
+      <p><strong>Amount:</strong> <span id="da_txActionAmount"></span></p>
+
+      <div class="da_modal-footer da_modal-footer--space">
+        <button id="da_txDeleteBtn" class="da_transaction-btn da_transaction-btn--delete">
+          Delete
+        </button>
+        <button id="da_txEditBtn" class="da_transaction-btn da_transaction-btn--edit">
+          Edit
+        </button>
+        <button id="da_txCancelBtn" class="da_transaction-btn">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal for friend transactions -->
+  <div id="da_modal" class="da_modal">
+    <div class="da_modal-content">
+      <button id="da_modalClose" class="da_modal-close">&times;</button>
+      <h3 id="da_modalTitle" class="da_modal-title">Transactions</h3>
+
+      <ul id="da_modalTransactions" class="da_transaction-list">
+        <!-- Filled by JS -->
+      </ul>
+
+      <div class="da_modal-footer">
+        <button id="da_settleUpBtn" class="da_settle-btn">Settle Up</button>
+      </div>
+    </div>
+  </div>
