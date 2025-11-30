@@ -29,7 +29,8 @@ The application uses a MySQL database with the following entity relationships:
 
 ### ER Diagram
 
-_[ER Diagram placeholder - To be added]_
+<img width="697" height="395" alt="Screenshot 2025-11-30 135456" src="https://github.com/user-attachments/assets/f6922e4f-c366-48f6-955f-59270cb3432e" />
+_
 
 ### Database Tables
 
