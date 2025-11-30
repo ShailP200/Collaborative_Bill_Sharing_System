@@ -586,3 +586,353 @@ h1 {
   font-weight: bold;
   border-top: 3px solid #2b5eff;
 }
+
+/* Modals */
+
+.da_modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.da_modal--open {
+  display: flex;
+}
+
+.da_modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#da_modal .da_modal-content {
+  max-height: 80vh;       
+  display: flex;
+  flex-direction: column;
+}
+
+#da_modalTransactions {
+  flex: 1;                  
+  min-height: 0;            
+  overflow-y: auto;         
+  margin: 8px 0;           
+}
+
+
+#da_txActionModal .da_modal-content {
+  max-width: 350px;
+}
+
+#da_txActionModal {
+  z-index: 1200; 
+}
+
+#da_txActionModal.da_modal--open::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: -1;
+}
+
+
+.da_modal-title {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.da_modal-close {
+  align-self: flex-end;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.da_modal-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.da_modal-footer--space {
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+/* Friend transactions popup list */
+
+.da_tx-month {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #555;
+  background: #f7f7f7;
+}
+
+.da_tx-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid #e5e7ef;
+  font-size: 0.9rem;
+}
+
+.da_tx-item:last-child {
+  border-bottom: none;
+}
+
+.da_tx-date {
+  width: 50px;
+  text-align: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.da_tx-date-month {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #999;
+}
+
+.da_tx-date-day {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.da_tx-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.da_tx-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.da_tx-subtitle {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.da_tx-right {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.da_tx-amount-negative {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.da_tx-amount-positive {
+  color: #28a745;
+  font-weight: 600;
+}
+
+
+.da_settle-btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #28a745;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.da_settle-btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Simple form */
+
+.da_expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.da_label {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.da_input,
+.da_expense-form select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.da_expense-friends {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.da_expense-friend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+  background-color: #f8f9fb;
+  cursor: pointer;
+}
+
+.da_expense-friend-chip input {
+  cursor: pointer;
+}
+
+.da_split-extra {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.da_split-extra-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.da_split-extra-table th,
+.da_split-extra-table td {
+  font-size: 0.8rem;
+  padding: 4px;
+  border-bottom: 1px solid #e5e7ef;
+  text-align: left;
+}
+
+.da_split-extra-note {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.da_error-text {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #d9534f;
+}
+
+.da_expense-friends-wrapper {
+  position: relative;
+}
+
+/* Dropdown panel under the search box */
+.da_expense-friends-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+  display: none;         
+}
+
+/* Tokenized input */
+.da_tokenizer{
+  display:flex; align-items:center; flex-wrap:wrap;
+  gap:6px; padding:6px 8px;
+  border:1px solid #ccc; border-radius:6px; background:#fff;
+}
+
+.da_selected-chips{display:flex; flex-wrap:wrap; gap:6px}
+
+.da_token{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:16px;
+  background:#eef2ff; border:1px solid #dbe1ff; font-size:.85rem;
+}
+
+.da_token-remove{
+  border:none; background:transparent; cursor:pointer; font-size:14px; line-height:1;
+  color:#667; padding:0 2px;
+}
+
+.da_tokenizer-input{
+  flex:1; min-width:120px; border:none; outline:none; font-size:.9rem; padding:6px 4px;
+}
+
+.da_expense-friends-wrapper{ position:relative }
+
+.da_expense-friends-dropdown .da_expense-friend-chip {
+  margin: 4px;
+}
+
+
+/* Dashboard Activity list  */
+
+.da_activity-title {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.da_act-item {
+  padding: 10px 4px;
+  border-bottom: 1px solid #e5e7ef;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.da_act-item:last-child {
+  border-bottom: none;
+}
+
+.da_act-title-text {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.da_act-sub {
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.da_act-sub--get {
+  color: #28a745;  
+}
+
+.da_act-sub--owe {
+  color: #d9534f;
+}
+
+.da_act-time {
+  font-size: 0.75rem;
+  color: #999;
+}

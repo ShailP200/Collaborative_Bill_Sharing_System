@@ -577,3 +577,361 @@ function renderActivityList() {
     daActivityListEl.appendChild(li);
   });
 }
+
+  if (daSettleSave) {
+    daSettleSave.onclick = async () => {
+      if (!settleFriend) return;
+      daSettleError.textContent = "";
+
+      let val = parseFloat(daSettleAmount.value);
+      if (isNaN(val) || val <= 0) {
+        daSettleError.textContent = "Enter a valid amount greater than 0.";
+        return;
+      }
+      if (val > settleMax + 1e-9) {
+        daSettleError.textContent = `Amount cannot exceed $${settleMax.toFixed(2)}.`;
+        return;
+      }
+
+      const payload = {
+        created_by: currentUser.user_id,
+        payer_id: currentUser.user_id,
+        description: `Settle up with ${settleFriend.name}`,
+        amount: Math.round(val * 100) / 100,
+        split_type: "settlement",
+        expense_date: todayISO(),
+        participants: [
+          { user_id: settleFriend.user_id, share_type: "amount", owed_amount: Math.round(val * 100) / 100 }
+        ],
+      };
+
+      daSettleSave.disabled = true;
+      daSettleSave.textContent = "Saving...";
+
+      try {
+        const resp = await fetch(`${API_BASE}/expenses`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Failed to settle");
+
+        const friendName = settleFriend.name;
+
+        closeSettleModal();
+        closeFriendModal();
+        await loadFriends();
+        await loadExpenses();
+
+        openInfoModal(
+          `You paid ${friendName} $${val.toFixed(2)}.`,
+          "Settle up completed"
+        );
+
+      } catch (e) {
+        console.error(e);
+        daSettleError.textContent = "Could not save settlement.";
+      } finally {
+        daSettleSave.disabled = false;
+        daSettleSave.textContent = "Confirm";
+      }
+    };
+  }
+
+  // Friend modal
+
+  function openFriendModal(friend) {
+    currentModalFriend = friend;
+    if (!daModal || !daModalTitle || !daModalTransactions) return;
+
+    daModalTitle.textContent = `Transactions with ${friend.name}`;
+    daModalTransactions.innerHTML = "";
+
+    const byExpense = new Map();
+    daExpenses.forEach((row) => {
+      if (!byExpense.has(row.expense_id)) {
+        byExpense.set(row.expense_id, {
+          expense_id: row.expense_id,
+          description: row.description,
+          expense_date: row.expense_date,
+          created_at: row.created_at,   
+          payer_name: row.payer_name,
+          amount: row.amount,
+          split_type: row.split_type,
+          rows: [],
+        });
+      }
+
+      byExpense.get(row.expense_id).rows.push(row);
+    });
+
+    const txActionModal = document.getElementById("da_txActionModal");
+    const txActionClose = document.getElementById("da_txActionClose");
+    const txDeleteBtn   = document.getElementById("da_txDeleteBtn");
+    const txEditBtn     = document.getElementById("da_txEditBtn");
+    const txCancelBtn   = document.getElementById("da_txCancelBtn");
+
+    const txActionDesc  = document.getElementById("da_txActionDesc");
+    const txActionDate  = document.getElementById("da_txActionDate");
+    const txActionAmount= document.getElementById("da_txActionAmount");
+
+    function openTxActionModal(group) {
+      if (!txActionModal) return;
+      editingGroupCache = group;
+
+      txActionDesc.textContent = group.description || "";
+
+      const when = group.created_at || group.expense_date;
+      txActionDate.textContent = when ? formatDateTime(when) : "";
+
+      txActionAmount.textContent =
+        group.amount != null ? Number(group.amount).toFixed(2) : "0.00";
+
+      txActionModal.classList.add("da_modal--open");
+    }
+
+
+    function closeTxActionModal() {
+      if (txActionModal) txActionModal.classList.remove("da_modal--open");
+    }
+    if (txActionClose)  txActionClose.onclick = closeTxActionModal;
+    if (txCancelBtn)    txCancelBtn.onclick   = closeTxActionModal;
+    if (txEditBtn) {
+      txEditBtn.onclick = () => {
+        if (!editingGroupCache) return;
+        editingExpenseId = editingGroupCache.expense_id;
+        closeTxActionModal();
+        prefillExpenseFormFromGroup(editingGroupCache);
+      };
+    }
+
+    if (txDeleteBtn) {
+      txDeleteBtn.onclick = async () => {
+        if (!editingGroupCache) return;
+        const id = editingGroupCache.expense_id;
+        if (!confirm("Delete this expense?")) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/expenses/${id}`, { method: "DELETE" });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Delete failed");
+          closeTxActionModal();
+          closeFriendModal();
+          await loadFriends();
+          await loadExpenses();
+          openInfoModal("Expense deleted successfully.", "Deleted");
+        } catch (e) {
+          console.error(e);
+          alert("Could not delete expense.");
+        }
+      };
+    }
+
+    // Build only expenses where BOTH current user and this friend are involved
+    const groups = [];
+    byExpense.forEach((g) => {
+      const rows = g.rows;
+      const hasMe = g.payer_name === currentUser.name || rows.some(r => r.user_id === currentUser.user_id);
+      const hasFriend = g.payer_name === friend.name || rows.some(r => r.user_id === friend.user_id);
+      if (!hasMe || !hasFriend) return;
+
+      const payerName = g.payer_name || "";
+      let signedAmount = 0;
+
+      if (payerName === currentUser.name) {
+        const friendRow = rows.find((r) => r.user_id === friend.user_id);
+        if (friendRow) {
+          const v = Number(friendRow.owed_amount);
+          if (!Number.isNaN(v)) signedAmount = v; 
+        }
+      } else if (payerName === friend.name) {
+        const myRow = rows.find((r) => r.user_id === currentUser.user_id);
+        if (myRow) {
+          const v = Number(myRow.owed_amount);
+          if (!Number.isNaN(v)) signedAmount = -v; 
+        }
+      } else {
+        const myRow = rows.find((r) => r.user_id === currentUser.user_id);
+        if (myRow) {
+          const v = Number(myRow.owed_amount);
+          if (!Number.isNaN(v)) signedAmount = -v;
+        }
+      }
+
+      groups.push({
+        expense_id: g.expense_id,
+        description: g.description,
+        expense_date: g.expense_date,
+        created_at: g.created_at,   
+        payer_name: g.payer_name,
+        amount: g.amount,
+        split_type: g.split_type,
+        rows: g.rows,
+        signedAmount,
+      });
+
+    });
+
+    groups.sort((a, b) => {
+      const ad = new Date(a.created_at || a.expense_date);
+      const bd = new Date(b.created_at || b.expense_date);
+      if (isNaN(ad) || isNaN(bd)) return 0;
+      return bd - ad;
+    });
+
+
+    if (!groups.length) {
+      const li = document.createElement("li");
+      li.className = "da_tx-item";
+      li.textContent = "No transactions with this friend yet.";
+      daModalTransactions.appendChild(li);
+    } else {
+      let currentMonthKey = "";
+
+      groups.forEach((tx) => {
+        const { year, monthShort, monthLong, dayText } = getDateParts(
+          tx.expense_date, tx.created_at
+        );
+        const monthKey = year && monthLong ? `${year}-${monthLong}` : "";
+
+        if (monthKey && monthKey !== currentMonthKey) {
+          currentMonthKey = monthKey;
+          const headerLi = document.createElement("li");
+          headerLi.className = "da_tx-month";
+          headerLi.textContent = `${monthLong} ${year}`;
+          daModalTransactions.appendChild(headerLi);
+        }
+
+        const li = document.createElement("li");
+        li.className = "da_tx-item";
+
+        const dateDiv = document.createElement("div");
+        dateDiv.className = "da_tx-date";
+
+        const monthSpan = document.createElement("div");
+        monthSpan.className = "da_tx-date-month";
+        monthSpan.textContent = monthShort;
+
+        const daySpan = document.createElement("div");
+        daySpan.className = "da_tx-date-day";
+        daySpan.textContent = dayText;
+
+        dateDiv.appendChild(monthSpan);
+        dateDiv.appendChild(daySpan);
+
+        const mainDiv = document.createElement("div");
+        mainDiv.className = "da_tx-main";
+
+        const titleSpan = document.createElement("div");
+        titleSpan.className = "da_tx-title";
+        titleSpan.textContent = tx.description || "(No description)";
+
+        const subtitleSpan = document.createElement("div");
+        subtitleSpan.className = "da_tx-subtitle";
+        subtitleSpan.textContent = `Payer: ${tx.payer_name}`;
+
+        mainDiv.appendChild(titleSpan);
+        mainDiv.appendChild(subtitleSpan);
+
+        const rightDiv = document.createElement("div");
+        rightDiv.className = "da_tx-right";
+
+        const amtSpan = document.createElement("span");
+        const num = tx.signedAmount;
+        const text =
+          num > 0 ? `+${num.toFixed(2)}` : num < 0 ? num.toFixed(2) : "0.00";
+        amtSpan.textContent = text;
+
+        if (num < 0) {
+          amtSpan.classList.add("da_tx-amount-negative");
+        } else if (num > 0) {
+          amtSpan.classList.add("da_tx-amount-positive");
+        }
+
+        rightDiv.appendChild(amtSpan);
+
+        li.appendChild(dateDiv);
+        li.appendChild(mainDiv);
+        li.appendChild(rightDiv);
+
+        li.addEventListener("click", () => {
+          openTxActionModal({
+            expense_id: tx.expense_id,
+            description: tx.description,
+            amount: tx.amount,
+            split_type: tx.split_type,
+            expense_date: tx.expense_date,
+            created_at: tx.created_at,   
+            payer_name: tx.payer_name,
+            rows: (byExpense.get(tx.expense_id) || {}).rows || []
+          });
+        });
+
+        daModalTransactions.appendChild(li);
+      });
+    }
+
+    // Settle up button logic 
+    if (daSettleUpBtn) {
+      const balNum = Number(friend.balance || 0);
+      if (!Number.isNaN(balNum) && balNum < 0) {
+        daSettleUpBtn.disabled = false;
+        daSettleUpBtn.onclick = () => openSettleModal(friend, Math.abs(balNum));
+      } else {
+        daSettleUpBtn.disabled = true;
+        daSettleUpBtn.onclick = null;
+      }
+    }
+
+
+    daModal.classList.add("da_modal--open");
+  }
+
+  function closeFriendModal() {
+    if (daModal) {
+      daModal.classList.remove("da_modal--open");
+    }
+    currentModalFriend = null;
+  }
+
+  if (daModalClose) {
+    daModalClose.addEventListener("click", closeFriendModal);
+  }
+  if (daModal) {
+    daModal.addEventListener("click", (e) => {
+      if (e.target === daModal) closeFriendModal();
+    });
+  }
+
+  function prefillExpenseFormFromGroup(group) {
+    daExpenseModal.classList.add("da_modal--open");
+
+    document.querySelector("#da_expenseModal .da_modal-title").textContent = "Edit Expense";
+    document.querySelector("#da_expenseForm .da_settle-btn").textContent = "Update";
+
+    document.getElementById("da_expenseDesc").value   = group.description || "";
+    document.getElementById("da_expenseAmount").value = group.amount != null ? Number(group.amount) : "";
+
+    selectedFriendIds.clear();
+    (group.rows || []).forEach(r => {
+      if (r.user_id !== currentUser.user_id) {
+        selectedFriendIds.add(String(r.user_id));
+      }
+    });
+    renderSelectedChips();
+
+    renderExpenseFriendChips(daExpenseFriendSearch?.value || "");
+
+    if (daSplitTypeSelect) daSplitTypeSelect.value = group.split_type || "equal";
+    rebuildSplitExtraUI();
+
+    if (group.split_type === "amount") {
+      const inputs = daSplitExtraFields.querySelectorAll(".da_split-amount-input");
+      inputs.forEach(inp => {
+        const uid = Number(inp.dataset.userId);
+        const row = (group.rows || []).find(r => r.user_id === uid);
+        if (row) inp.value = Number(row.owed_amount).toFixed(2);
+      });
+    }
+  }

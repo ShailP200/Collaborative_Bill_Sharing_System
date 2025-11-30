@@ -213,3 +213,41 @@
     </form>
   </div>
 </div>
+
+<!-- Modal: Settle Up -->
+<div id="da_settleModal" class="da_modal">
+    <div class="da_modal-content">
+      <button id="da_settleClose" class="da_modal-close">&times;</button>
+      <h3 class="da_modal-title">Settle Up</h3>
+
+      <p id="da_settleInfo" class="da_text-muted"></p>
+
+      <label class="da_label" for="da_settleAmount">Amount</label>
+      <input type="number" step="0.01" min="0.01" id="da_settleAmount" class="da_input" placeholder="0.00">
+
+      <div id="da_settleError" class="da_error-text"></div>
+
+      <div class="da_modal-footer da_modal-footer--space">
+        <button type="button" id="da_settleCancel" class="da_transaction-btn da_transaction-btn--delete">Cancel</button>
+        <button type="button" id="da_settleSave" class="da_settle-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic info / confirmation modal -->
+  <div id="da_infoModal" class="da_modal">
+    <div class="da_modal-content">
+      <button id="da_infoClose" class="da_modal-close">&times;</button>
+      <h3 id="da_infoTitle" class="da_modal-title">Done</h3>
+      <p id="da_infoMessage" style="margin: 8px 0 4px;"></p>
+
+      <div class="da_modal-footer">
+        <button id="da_infoOk" class="da_settle-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
+
