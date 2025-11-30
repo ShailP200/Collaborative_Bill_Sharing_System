@@ -1,4 +1,7 @@
-// LOGIN PAGE (index.html)
+// backend URL 
+const API_BASE = "http://127.0.0.1:5000/api";
+
+// LOGIN PAGE 
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("in_loginForm");
@@ -22,7 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        openInfoModal("Backend not ready yet", "Notice");
+        const res = await fetch(`${API_BASE}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
         const data = await res.json();
         if (!res.ok || !data.ok) {
@@ -40,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- REGISTER ----------
+  //  REGISTER 
   if (regForm) {
     regForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -61,7 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        openInfoModal("Backend not connected yet", "Notice");
+        const res = await fetch(`${API_BASE}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, phone, password }),
+        });
 
         const data = await res.json();
         console.log("Register response:", data);
@@ -71,10 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        openInfoModal(
-          "Registration successful! You can now log in.",
-          "Registration Complete"
-        );
+        openInfoModal("Registration successful! You can now log in.", "Registration Complete");
         window.location.href = "index.html";
       } catch (err) {
         console.error("Register error:", err);
@@ -84,14 +92,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// DASHBOARD PAGE
+// DASHBOARD PAGE 
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Are we on the dashboard page?
   const daApp = document.querySelector(".da_app");
   if (!daApp) return;
 
-  // Make sure user is logged in
   const userData = localStorage.getItem("loggedInUser");
   if (!userData) {
     alert("Please log in first!");
@@ -107,477 +113,623 @@ document.addEventListener("DOMContentLoaded", () => {
   const daAccountEmailEl = document.getElementById("da_accountEmail");
   const daAccountBalanceEl = document.getElementById("da_accountBalance");
   const daLogoutBtn = document.getElementById("da_logoutBtn");
-  const daShowZeroFriendsCheckbox =
-    document.getElementById("da_showZeroFriends");
+  const daShowZeroFriendsCheckbox = document.getElementById("da_showZeroFriends");
 
   if (daAccountNameEl) daAccountNameEl.textContent = currentUser.name || "N/A";
-  if (daAccountEmailEl)
-    daAccountEmailEl.textContent = currentUser.email || "N/A";
+  if (daAccountEmailEl) daAccountEmailEl.textContent = currentUser.email || "N/A";
 
   // Friends / Activity elements
   const daFriendsListEl = document.getElementById("da_friendsList");
   const daFriendSearchEl = document.getElementById("da_friendSearch");
   const daActivityListEl = document.getElementById("da_activityList");
 
-  // Declare missing variables
-  const daNavButtons = document.querySelectorAll(".da_nav-btn");
+  // Modals: friend transactions
+  const daModal = document.getElementById("da_modal");
+  const daModalTitle = document.getElementById("da_modalTitle");
+  const daModalTransactions = document.getElementById("da_modalTransactions");
+  const daModalClose = document.getElementById("da_modalClose");
+  const daSettleUpBtn = document.getElementById("da_settleUpBtn");
+
+  // Add Expense modal 
+  const daExpenseModal = document.getElementById("da_expenseModal");
+  const daExpenseModalClose = document.getElementById("da_expenseModalClose");
+  const daExpenseForm = document.getElementById("da_expenseForm");
+  const daExpenseCancel = document.getElementById("da_expenseCancel");
+  const daAddExpenseBtn = document.getElementById("da_addExpenseBtn");
+  const daExpenseFriendsContainer = document.getElementById("da_expenseFriendsContainer");
+  const daSplitTypeSelect = document.getElementById("da_expenseType");
+  const daSplitExtraFields = document.getElementById("da_splitExtraFields");
+  const daExpenseErrorEl = document.getElementById("da_expenseError");
+  const daExpenseFriendSearch = document.getElementById("da_expenseFriendSearch");
+  const daSelectedChipsEl = document.getElementById("da_selectedChips");
+
+  // Settle Up modal 
+  const daSettleModal   = document.getElementById("da_settleModal");
+  const daSettleClose   = document.getElementById("da_settleClose");
+  const daSettleCancel  = document.getElementById("da_settleCancel");
+  const daSettleSave    = document.getElementById("da_settleSave");
+  const daSettleAmount  = document.getElementById("da_settleAmount");
+  const daSettleInfo    = document.getElementById("da_settleInfo");
+  const daSettleError   = document.getElementById("da_settleError");
+
+  // Info
+  const daInfoModal   = document.getElementById("da_infoModal");
+  const daInfoTitle   = document.getElementById("da_infoTitle");
+  const daInfoMessage = document.getElementById("da_infoMessage");
+  const daInfoClose   = document.getElementById("da_infoClose");
+  const daInfoOk      = document.getElementById("da_infoOk");  
+
+  function openInfoModal(message, title = "Done") {
+    if (!daInfoModal || !daInfoMessage || !daInfoTitle) return;
+    daInfoTitle.textContent = title;
+    daInfoMessage.textContent = message || "";
+    daInfoModal.classList.add("da_modal--open");
+  }
+
+  function closeInfoModal() {
+    if (!daInfoModal) return;
+    daInfoModal.classList.remove("da_modal--open");
+  }
+
+  if (daInfoClose) daInfoClose.onclick = closeInfoModal;
+  if (daInfoOk)    daInfoOk.onclick    = closeInfoModal;
+  if (daInfoModal) {
+    daInfoModal.addEventListener("click", (e) => {
+      if (e.target === daInfoModal) closeInfoModal();
+    });
+  }
+
+  // settle-up state
+  let settleFriend = null;
+  let settleMax = 0;     
+  function openSettleModal(friend, maxAmount) {
+    if (!daSettleModal || !daSettleAmount) return;
+
+    settleFriend = friend;
+    settleMax = Math.max(0, Number(maxAmount) || 0);
+
+    if (daSettleError) daSettleError.textContent = "";
+    daSettleAmount.value = settleMax.toFixed(2);
+    daSettleAmount.max = settleMax.toFixed(2);
+
+    if (daSettleInfo) {
+      daSettleInfo.textContent =
+        `You owe ${friend.name} up to $${settleMax.toFixed(2)}. Enter an amount to settle now.`;
+    }
+
+    daSettleModal.classList.add("da_modal--open");
+    daSettleAmount.focus();
+  }
+
+  function closeSettleModal() {
+    daSettleModal.classList.remove("da_modal--open");
+    settleFriend = null;
+    settleMax = 0;
+  }
+  if (daSettleClose)  daSettleClose.onclick  = closeSettleModal;
+  if (daSettleCancel) daSettleCancel.onclick = closeSettleModal;
+  if (daSettleModal) {
+    daSettleModal.addEventListener("click", (e) => {
+      if (e.target === daSettleModal) closeSettleModal();
+    });
+  }
+
+  const selectedFriendIds = new Set();
+
+  if (daSplitTypeSelect) {
+    daSplitTypeSelect.addEventListener("change", rebuildSplitExtraUI);
+  }
+
+  // Bottom nav sections
   const daSections = {
     friends: document.getElementById("da_friendsSection"),
     activity: document.getElementById("da_activitySection"),
     account: document.getElementById("da_accountSection"),
   };
-  const daAddExpenseBtn = document.getElementById("da_addExpenseBtn");
+  const daNavButtons = document.querySelectorAll(".da_nav-btn");
 
-  // Bottom navigation (Friends / Activity / Account)
-  daNavButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.target;
+  // Data storage
+  let daFriends = [];
+  let daExpenses = [];
+  let daShowZeroFriends = false;
+  let friendMap = new Map();  
 
-      daNavButtons.forEach((b) => b.classList.remove("da_nav-btn--active"));
-      btn.classList.add("da_nav-btn--active");
+  let editingExpenseId = null;    
+  let editingGroupCache = null;   
+  let currentModalFriend = null;     
 
-      Object.keys(daSections).forEach((key) => {
-        if (daSections[key])
-          daSections[key].classList.remove("da_section--active");
+  function todayISO() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return (
+      d.getFullYear() +
+      "-" +
+      pad(d.getMonth() + 1) +
+      "-" +
+      pad(d.getDate())
+    ); 
+  }
+
+  function formatDateTime(raw) {
+    if (!raw) return "";
+    let s = String(raw).trim();
+
+    if (s.includes("GMT")) {
+      s = s.replace(" GMT", ""); 
+    }
+
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) {
+      console.warn("Could not parse date:", raw);
+      return String(raw);
+    }
+
+    const datePart = d.toLocaleDateString(undefined, {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    const timePart = d.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    return `${datePart} ${timePart}`;
+  }
+
+  async function loadFriends() {
+    try {
+      console.log("Loading friends for user_id =", currentUser.user_id);
+      const res = await fetch(`${API_BASE}/friends/${currentUser.user_id}`);
+      console.log("Response status for /friends:", res.status);
+      daFriends = await res.json();
+      console.log("Friends from backend:", daFriends);
+      friendMap.clear();
+      daFriends.forEach(f => {
+        friendMap.set(f.user_id, f.name);
       });
-      if (daSections[target])
-        daSections[target].classList.add("da_section--active");
+      renderFriendsList();
+      updateTotalBalance();
+      renderExpenseFriendChips();
+    } catch (err) {
+      console.error("Error loading friends:", err);
+    }
+  }
 
-      if (daAddExpenseBtn) {
-        daAddExpenseBtn.style.display = target === "account" ? "none" : "block";
-      }
+  async function loadExpenses() {
+    try {
+      console.log("Loading expenses for user_id =", currentUser.user_id);
+      const res = await fetch(`${API_BASE}/expenses/${currentUser.user_id}`);
+      console.log("Response status for /expenses:", res.status);
+      daExpenses = await res.json();
+      console.log("Expenses from backend:", daExpenses);
+      renderActivityList();
+    } catch (err) {
+      console.error("Error loading expenses:", err);
+    }
+  }
+
+  // Render functions
+  function updateTotalBalance() {
+    if (!daAccountBalanceEl) return;
+
+    const total = daFriends.reduce((sum, f) => {
+      const raw = f.balance;
+      const num = raw == null ? 0 : Number(raw);
+      return sum + (Number.isNaN(num) ? 0 : num);
+    }, 0);
+
+    daAccountBalanceEl.textContent = total.toFixed(2);
+    daAccountBalanceEl.style.color = total >= 0 ? "green" : "red";
+  }
+
+
+  function renderFriendsList(filterText = "") {
+    if (!daFriendsListEl) return;
+    daFriendsListEl.innerHTML = "";
+
+    const term = filterText.toLowerCase();
+
+    daFriends
+      .filter((f) => f.name.toLowerCase().includes(term))
+      .filter((f) => {
+        const bal = Number(f.balance) || 0;
+        if (!daShowZeroFriends) return bal !== 0;
+        return true;
+      })
+      .forEach((friend) => {
+        const li = document.createElement("li");
+        li.className = "da_friend-item";
+        li.dataset.friendId = friend.user_id;
+
+        const raw = friend.balance;
+        let balance = raw == null ? 0 : Number(raw);
+        if (Number.isNaN(balance)) balance = 0;
+
+        if (balance < 0) {
+          li.classList.add("da_friend-item--negative");
+        } else if (balance > 0) {
+          li.classList.add("da_friend-item--positive");
+        }
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "da_friend-name";
+        nameSpan.textContent = friend.name;
+
+        const amtSpan = document.createElement("span");
+        amtSpan.className = "da_friend-amount";
+
+        const signed = balance > 0 ? `+${balance.toFixed(2)}` : balance.toFixed(2);
+        amtSpan.textContent = signed;
+
+        if (balance < 0) {
+          amtSpan.classList.add("da_friend-amount--negative");
+        } else if (balance > 0) {
+          amtSpan.classList.add("da_friend-amount--positive");
+        }
+
+        li.appendChild(nameSpan);
+        li.appendChild(amtSpan);
+
+        li.addEventListener("click", () => openFriendModal(friend));
+
+        daFriendsListEl.appendChild(li);
+      });
+  }
+
+  function renderExpenseFriendChips(filterText = "") {
+    if (!daExpenseFriendsContainer) return;
+    const term = (filterText || "").toLowerCase();
+    daExpenseFriendsContainer.innerHTML = "";
+
+    const filtered = daFriends.filter(f => f.name.toLowerCase().includes(term));
+    if (!filtered.length) {
+      const p = document.createElement("p");
+      p.style.fontSize = "0.85rem"; p.style.color = "#888";
+      p.textContent = "No friends match your search.";
+      daExpenseFriendsContainer.appendChild(p);
+      return;
+    }
+
+    filtered.forEach(friend => {
+      const label = document.createElement("label");
+      label.className = "da_expense-friend-chip";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = String(friend.user_id);
+      cb.dataset.friendName = friend.name;
+      cb.checked = selectedFriendIds.has(cb.value); 
+
+      cb.addEventListener("change", () => {
+        if (cb.checked) selectedFriendIds.add(cb.value);
+        else selectedFriendIds.delete(cb.value);
+        renderSelectedChips();
+        rebuildSplitExtraUI();
+      });
+
+      const span = document.createElement("span");
+      span.textContent = friend.name;
+
+      label.appendChild(cb);
+      label.appendChild(span);
+      daExpenseFriendsContainer.appendChild(label);
     });
-  });
+  }
 
-  // Logout
-  if (daLogoutBtn) {
-    daLogoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("loggedInUser");
-      openInfoModal("Logged out successfully.", "Logout");
-      window.location.href = "index.html";
+  function renderSelectedChips() {
+    if (!daSelectedChipsEl) return;
+    daSelectedChipsEl.innerHTML = "";
+
+    Array.from(selectedFriendIds).forEach(idStr => {
+      const friend = daFriends.find(f => String(f.user_id) === idStr);
+      const name = friend ? friend.name : `User ${idStr}`;
+
+      const chip = document.createElement("span");
+      chip.className = "da_token";
+      chip.textContent = name;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "da_token-remove";
+      btn.setAttribute("aria-label", `Remove ${name}`);
+      btn.textContent = "✕";
+      btn.addEventListener("click", () => {
+        selectedFriendIds.delete(idStr);
+        const cb = daExpenseFriendsContainer?.querySelector(
+          `input[type="checkbox"][value="${CSS.escape(idStr)}"]`
+        );
+        if (cb) cb.checked = false;
+
+        renderSelectedChips();
+        rebuildSplitExtraUI();
+      });
+
+      chip.appendChild(btn);
+      daSelectedChipsEl.appendChild(chip);
     });
   }
-});
 
-// Friends / Activity elements
-const daFriendsListEl = document.getElementById("da_friendsList");
-const daFriendSearchEl = document.getElementById("da_friendSearch");
-const daActivityListEl = document.getElementById("da_activityList");
+  //ayush done
 
-// Modals: friend transactions
-const daModal = document.getElementById("da_modal");
-const daModalTitle = document.getElementById("da_modalTitle");
-const daModalTransactions = document.getElementById("da_modalTransactions");
-const daModalClose = document.getElementById("da_modalClose");
-const daSettleUpBtn = document.getElementById("da_settleUpBtn");
+  function getSelectedParticipants() {
+    const ids = new Set(selectedFriendIds); 
+    ids.add(String(currentUser.user_id));   
 
-function formatDateTime(raw) {
-  if (!raw) return "";
-  let s = String(raw).trim();
-
-  if (s.includes("GMT")) {
-    s = s.replace(" GMT", "");
-  }
-
-  const d = new Date(s);
-  if (Number.isNaN(d.getTime())) {
-    console.warn("Could not parse date:", raw);
-    return String(raw);
-  }
-
-  const datePart = d.toLocaleDateString(undefined, {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
-  const timePart = d.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-  return `${datePart} ${timePart}`;
-}
-
-async function loadFriends() {
-  try {
-    console.log("Loading friends for user_id =", currentUser.user_id);
-    const res = await fetch(`${API_BASE}/friends/${currentUser.user_id}`);
-    console.log("Response status for /friends:", res.status);
-    daFriends = await res.json();
-    console.log("Friends from backend:", daFriends);
-    friendMap.clear();
-    daFriends.forEach((f) => {
-      friendMap.set(f.user_id, f.name);
+    const participants = Array.from(ids).map(idStr => {
+      const id = Number(idStr);
+      if (id === currentUser.user_id) return { user_id: id, name: currentUser.name };
+      const friend = daFriends.find(f => f.user_id === id);
+      return { user_id: id, name: friend ? friend.name : `User ${id}` };
     });
-    renderFriendsList();
-    updateTotalBalance();
-    renderExpenseFriendChips();
-  } catch (err) {
-    console.error("Error loading friends:", err);
+
+    return participants;
   }
-}
 
-async function loadExpenses() {
-  try {
-    console.log("Loading expenses for user_id =", currentUser.user_id);
-    const res = await fetch(`${API_BASE}/expenses/${currentUser.user_id}`);
-    console.log("Response status for /expenses:", res.status);
-    daExpenses = await res.json();
-    console.log("Expenses from backend:", daExpenses);
-    renderActivityList();
-  } catch (err) {
-    console.error("Error loading expenses:", err);
+  function rebuildSplitExtraUI() {
+    if (!daSplitExtraFields || !daSplitTypeSelect) return;
+    daSplitExtraFields.innerHTML = "";
+
+    const splitType = daSplitTypeSelect.value;
+    const participants = getSelectedParticipants();
+
+    if (!participants.length) {
+      daSplitExtraFields.textContent = "Select at least one person for this expense.";
+      return;
+    }
+
+    if (splitType === "equal") {
+      const note = document.createElement("div");
+      note.className = "da_split-extra-note";
+      note.textContent = `This expense will be split equally among ${participants.length} people.`;
+      daSplitExtraFields.appendChild(note);
+      return;
+    }
+
+    if (splitType === "amount") {
+      const table = document.createElement("table");
+      table.className = "da_split-extra-table";
+
+      const thead = document.createElement("thead");
+      thead.innerHTML = "<tr><th>Person</th><th>Amount</th></tr>";
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      participants.forEach((p) => {
+        const tr = document.createElement("tr");
+        const tdName = document.createElement("td");
+        const tdInput = document.createElement("td");
+
+        tdName.textContent = p.name;
+
+        const input = document.createElement("input");
+        input.type = "number";
+        input.step = "0.01";
+        input.min = "0";
+        input.className = "da_split-amount-input";
+        input.dataset.userId = p.user_id;
+
+        tdInput.appendChild(input);
+        tr.appendChild(tdName);
+        tr.appendChild(tdInput);
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      daSplitExtraFields.appendChild(table);
+
+      const note = document.createElement("div");
+      note.className = "da_split-extra-note";
+      note.textContent = "Make sure the amounts add up to the total.";
+      daSplitExtraFields.appendChild(note);
+    }
+
   }
-}
 
-// Render functions
-function updateTotalBalance() {
-  if (!daAccountBalanceEl) return;
+  function getDateParts(rawDate, fallbackDate = null) {
+    const raw = rawDate || fallbackDate;
+    if (!raw) {
+      return { year: "", monthShort: "", monthLong: "", dayText: "" };
+    }
 
-  const total = daFriends.reduce((sum, f) => {
-    const raw = f.balance;
-    const num = raw == null ? 0 : Number(raw);
-    return sum + (Number.isNaN(num) ? 0 : num);
-  }, 0);
+    let s = String(raw).trim();
 
-  daAccountBalanceEl.textContent = total.toFixed(2);
-  daAccountBalanceEl.style.color = total >= 0 ? "green" : "red";
-}
+    if (s.includes("GMT")) {
+      s = s.replace(" GMT", "");
+    }
 
-function renderFriendsList(filterText = "") {
-  if (!daFriendsListEl) return;
-  daFriendsListEl.innerHTML = "";
+    const d = new Date(s);
+    if (isNaN(d.getTime())) {
+      return { year: "", monthShort: "", monthLong: "", dayText: "" };
+    }
 
-  const term = filterText.toLowerCase();
+    return {
+      year: d.getFullYear().toString(),
+      monthShort: d.toLocaleString(undefined, { month: "short" }),
+      monthLong: d.toLocaleString(undefined, { month: "long" }),
+      dayText: d.getDate().toString()
+    };
+  }
 
-  daFriends
-    .filter((f) => f.name.toLowerCase().includes(term))
-    .filter((f) => {
-      const bal = Number(f.balance) || 0;
-      if (!daShowZeroFriends) return bal !== 0;
-      return true;
-    })
-    .forEach((friend) => {
+  function renderActivityList() {
+    if (!daActivityListEl) return;
+    daActivityListEl.innerHTML = "";
+
+    if (!daExpenses.length) {
       const li = document.createElement("li");
-      li.className = "da_friend-item";
-      li.dataset.friendId = friend.user_id;
+      li.className = "da_tx-item";
+      li.textContent = "No recent expenses yet.";
+      daActivityListEl.appendChild(li);
+      return;
+    }
 
-      const raw = friend.balance;
-      let balance = raw == null ? 0 : Number(raw);
-      if (Number.isNaN(balance)) balance = 0;
-
-      if (balance < 0) {
-        li.classList.add("da_friend-item--negative");
-      } else if (balance > 0) {
-        li.classList.add("da_friend-item--positive");
+    const byExpense = new Map();
+    daExpenses.forEach((row) => {
+      const id = row.expense_id;
+      if (!byExpense.has(id)) {
+        byExpense.set(id, {
+          expense_id: id,
+          description: row.description,
+          expense_date: row.expense_date,
+          created_at: row.created_at, 
+          payer_name: row.payer_name,
+          amount: row.amount,
+          split_type: row.split_type,
+          rows: [],
+        });
       }
-
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "da_friend-name";
-      nameSpan.textContent = friend.name;
-
-      const amtSpan = document.createElement("span");
-      amtSpan.className = "da_friend-amount";
-
-      const signed =
-        balance > 0 ? `+${balance.toFixed(2)}` : balance.toFixed(2);
-      amtSpan.textContent = signed;
-
-      if (balance < 0) {
-        amtSpan.classList.add("da_friend-amount--negative");
-      } else if (balance > 0) {
-        amtSpan.classList.add("da_friend-amount--positive");
-      }
-
-      li.appendChild(nameSpan);
-      li.appendChild(amtSpan);
-
-      li.addEventListener("click", () => openFriendModal(friend));
-
-      daFriendsListEl.appendChild(li);
-    });
-}
-
-function renderExpenseFriendChips(filterText = "") {
-  if (!daExpenseFriendsContainer) return;
-  const term = (filterText || "").toLowerCase();
-  daExpenseFriendsContainer.innerHTML = "";
-
-  const filtered = daFriends.filter((f) => f.name.toLowerCase().includes(term));
-  if (!filtered.length) {
-    const p = document.createElement("p");
-    p.style.fontSize = "0.85rem";
-    p.style.color = "#888";
-    p.textContent = "No friends match your search.";
-    daExpenseFriendsContainer.appendChild(p);
-    return;
-  }
-
-  filtered.forEach((friend) => {
-    const label = document.createElement("label");
-    label.className = "da_expense-friend-chip";
-
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = String(friend.user_id);
-    cb.dataset.friendName = friend.name;
-    cb.checked = selectedFriendIds.has(cb.value);
-
-    cb.addEventListener("change", () => {
-      if (cb.checked) selectedFriendIds.add(cb.value);
-      else selectedFriendIds.delete(cb.value);
-      renderSelectedChips();
-      rebuildSplitExtraUI();
+      byExpense.get(id).rows.push(row);
     });
 
-    const span = document.createElement("span");
-    span.textContent = friend.name;
+    const groups = Array.from(byExpense.values()).sort((a, b) => {
+      const ad = new Date(a.created_at || a.expense_date);
+      const bd = new Date(b.created_at || b.expense_date);
 
-    label.appendChild(cb);
-    label.appendChild(span);
-    daExpenseFriendsContainer.appendChild(label);
-  });
-}
+      if (isNaN(ad) || isNaN(bd)) return 0;
+      return bd - ad;
+    });
 
-function renderSelectedChips() {
-  if (!daSelectedChipsEl) return;
-  daSelectedChipsEl.innerHTML = "";
+    let currentMonthKey = "";
 
-  Array.from(selectedFriendIds).forEach((idStr) => {
-    const friend = daFriends.find((f) => String(f.user_id) === idStr);
-    const name = friend ? friend.name : `User ${idStr}`;
-
-    const chip = document.createElement("span");
-    chip.className = "da_token";
-    chip.textContent = name;
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "da_token-remove";
-    btn.setAttribute("aria-label", `Remove ${name}`);
-    btn.textContent = "✕";
-    btn.addEventListener("click", () => {
-      selectedFriendIds.delete(idStr);
-      const cb = daExpenseFriendsContainer?.querySelector(
-        `input[type="checkbox"][value="${CSS.escape(idStr)}"]`
+    groups.forEach((g) => {
+      const { year, monthShort, monthLong, dayText } = getDateParts(
+        g.expense_date, g.created_at
       );
-      if (cb) cb.checked = false;
 
-      renderSelectedChips();
-      rebuildSplitExtraUI();
-    });
+      const monthKey = year && monthLong ? `${year}-${monthLong}` : "";
 
-    chip.appendChild(btn);
-    daSelectedChipsEl.appendChild(chip);
-  });
-}
+      if (monthKey && monthKey !== currentMonthKey) {
+        currentMonthKey = monthKey;
+        const headerLi = document.createElement("li");
+        headerLi.className = "da_tx-month";
+        headerLi.textContent = `${monthLong} ${year}`;
+        daActivityListEl.appendChild(headerLi);
+      }
 
-function getDateParts(rawDate, fallbackDate = null) {
-  const raw = rawDate || fallbackDate;
-  if (!raw) {
-    return { year: "", monthShort: "", monthLong: "", dayText: "" };
-  }
+      const rows = g.rows;
+      const payerName = g.payer_name || "";
+      let signedAmount = 0;
 
-  let s = String(raw).trim();
-
-  if (s.includes("GMT")) {
-    s = s.replace(" GMT", "");
-  }
-
-  const d = new Date(s);
-  if (isNaN(d.getTime())) {
-    return { year: "", monthShort: "", monthLong: "", dayText: "" };
-  }
-
-  return {
-    year: d.getFullYear().toString(),
-    monthShort: d.toLocaleString(undefined, { month: "short" }),
-    monthLong: d.toLocaleString(undefined, { month: "long" }),
-    dayText: d.getDate().toString(),
-  };
-}
-
-function renderActivityList() {
-  if (!daActivityListEl) return;
-  daActivityListEl.innerHTML = "";
-
-  if (!daExpenses.length) {
-    const li = document.createElement("li");
-    li.className = "da_tx-item";
-    li.textContent = "No recent expenses yet.";
-    daActivityListEl.appendChild(li);
-    return;
-  }
-
-  const byExpense = new Map();
-  daExpenses.forEach((row) => {
-    const id = row.expense_id;
-    if (!byExpense.has(id)) {
-      byExpense.set(id, {
-        expense_id: id,
-        description: row.description,
-        expense_date: row.expense_date,
-        created_at: row.created_at,
-        payer_name: row.payer_name,
-        amount: row.amount,
-        split_type: row.split_type,
-        rows: [],
-      });
-    }
-    byExpense.get(id).rows.push(row);
-  });
-
-  const groups = Array.from(byExpense.values()).sort((a, b) => {
-    const ad = new Date(a.created_at || a.expense_date);
-    const bd = new Date(b.created_at || b.expense_date);
-
-    if (isNaN(ad) || isNaN(bd)) return 0;
-    return bd - ad;
-  });
-
-  let currentMonthKey = "";
-
-  groups.forEach((g) => {
-    const { year, monthShort, monthLong, dayText } = getDateParts(
-      g.expense_date,
-      g.created_at
-    );
-
-    const monthKey = year && monthLong ? `${year}-${monthLong}` : "";
-
-    if (monthKey && monthKey !== currentMonthKey) {
-      currentMonthKey = monthKey;
-      const headerLi = document.createElement("li");
-      headerLi.className = "da_tx-month";
-      headerLi.textContent = `${monthLong} ${year}`;
-      daActivityListEl.appendChild(headerLi);
-    }
-
-    const rows = g.rows;
-    const payerName = g.payer_name || "";
-    let signedAmount = 0;
-
-    if (payerName === currentUser.name) {
-      signedAmount = rows.reduce((sum, r) => {
-        if (r.user_id === currentUser.user_id) return sum;
-        const v = Number(r.owed_amount);
-        return sum + (Number.isNaN(v) ? 0 : v);
-      }, 0);
-    } else {
-      const myRow = rows.find((r) => r.user_id === currentUser.user_id);
-      if (myRow) {
-        const v = Number(myRow.owed_amount);
-        if (!Number.isNaN(v)) signedAmount = -v;
+      if (payerName === currentUser.name) {
+        signedAmount = rows.reduce((sum, r) => {
+          if (r.user_id === currentUser.user_id) return sum;
+          const v = Number(r.owed_amount);
+          return sum + (Number.isNaN(v) ? 0 : v);
+        }, 0);
       } else {
-        return;
+        const myRow = rows.find((r) => r.user_id === currentUser.user_id);
+        if (myRow) {
+          const v = Number(myRow.owed_amount);
+          if (!Number.isNaN(v)) signedAmount = -v;
+        } else {
+          return;
+        }
       }
-    }
 
-    const li = document.createElement("li");
-    li.className = "da_tx-item";
+      const li = document.createElement("li");
+      li.className = "da_tx-item";
 
-    const dateDiv = document.createElement("div");
-    dateDiv.className = "da_tx-date";
+      const dateDiv = document.createElement("div");
+      dateDiv.className = "da_tx-date";
 
-    const monthSpan = document.createElement("div");
-    monthSpan.className = "da_tx-date-month";
-    monthSpan.textContent = monthShort;
+      const monthSpan = document.createElement("div");
+      monthSpan.className = "da_tx-date-month";
+      monthSpan.textContent = monthShort;
 
-    const daySpan = document.createElement("div");
-    daySpan.className = "da_tx-date-day";
-    daySpan.textContent = dayText;
+      const daySpan = document.createElement("div");
+      daySpan.className = "da_tx-date-day";
+      daySpan.textContent = dayText;  
 
-    dateDiv.appendChild(monthSpan);
-    dateDiv.appendChild(daySpan);
+      dateDiv.appendChild(monthSpan);
+      dateDiv.appendChild(daySpan);
 
-    const mainDiv = document.createElement("div");
-    mainDiv.className = "da_tx-main";
+      const mainDiv = document.createElement("div");
+      mainDiv.className = "da_tx-main";
 
-    const titleSpan = document.createElement("div");
-    titleSpan.className = "da_tx-title";
-    titleSpan.textContent = g.description || "(No description)";
+      const titleSpan = document.createElement("div");
+      titleSpan.className = "da_tx-title";
+      titleSpan.textContent = g.description || "(No description)";
 
-    const subtitleSpan = document.createElement("div");
-    subtitleSpan.className = "da_tx-subtitle";
+      const subtitleSpan = document.createElement("div");
+      subtitleSpan.className = "da_tx-subtitle";
 
-    let counterpartyText = "";
-    let participantsCount = 0;
+      let counterpartyText = "";
+      let participantsCount = 0;
 
-    if (payerName === currentUser.name) {
-      const others = rows.filter((r) => r.user_id !== currentUser.user_id);
-      participantsCount = others.length;
-
-      if (others.length === 1) {
-        const otherId = others[0].user_id;
-        counterpartyText = friendMap.get(otherId) || "";
-      } else if (others.length > 1) {
-        counterpartyText = `${others.length} friends`;
-      }
-    } else {
-      counterpartyText = payerName;
-    }
-
-    if (g.split_type === "settlement") {
       if (payerName === currentUser.name) {
         const others = rows.filter((r) => r.user_id !== currentUser.user_id);
-        const who =
-          others.length === 1
-            ? friendMap.get(others[0].user_id) || "friend"
-            : "friends";
-        subtitleSpan.textContent = `You paid ${who}`;
-      } else {
-        subtitleSpan.textContent = `${payerName} paid you`;
-      }
-    } else if (signedAmount > 0) {
-      if (counterpartyText) {
-        if (participantsCount === 1 && payerName === currentUser.name) {
-          subtitleSpan.textContent = `${counterpartyText} owes you`;
-        } else {
-          subtitleSpan.textContent = `You get back from ${counterpartyText}`;
+        participantsCount = others.length;
+
+        if (others.length === 1) {
+          const otherId = others[0].user_id;
+          counterpartyText = friendMap.get(otherId) || "";
+        } else if (others.length > 1) {
+          counterpartyText = `${others.length} friends`;
         }
       } else {
-        subtitleSpan.textContent = "You get back";
+        counterpartyText = payerName;
       }
-    } else if (signedAmount < 0) {
-      if (counterpartyText) {
-        subtitleSpan.textContent = `You owe ${counterpartyText}`;
+
+      if (g.split_type === "settlement") {
+        if (payerName === currentUser.name) {
+          const others = rows.filter(r => r.user_id !== currentUser.user_id);
+          const who = others.length === 1 ? (friendMap.get(others[0].user_id) || "friend") : "friends";
+          subtitleSpan.textContent = `You paid ${who}`;
+        } else {
+          subtitleSpan.textContent = `${payerName} paid you`;
+        }
+      } else if (signedAmount > 0) {
+        if (counterpartyText) {
+          if (participantsCount === 1 && payerName === currentUser.name) {
+            subtitleSpan.textContent = `${counterpartyText} owes you`;
+          } else {
+            subtitleSpan.textContent = `You get back from ${counterpartyText}`;
+          }
+        } else {
+          subtitleSpan.textContent = "You get back";
+        }
+      } else if (signedAmount < 0) {
+        if (counterpartyText) {
+          subtitleSpan.textContent = `You owe ${counterpartyText}`;
+        } else {
+          subtitleSpan.textContent = "You owe";
+        }
       } else {
-        subtitleSpan.textContent = "You owe";
+        subtitleSpan.textContent = "";
       }
-    } else {
-      subtitleSpan.textContent = "";
-    }
 
-    mainDiv.appendChild(titleSpan);
-    mainDiv.appendChild(subtitleSpan);
+      mainDiv.appendChild(titleSpan);
+      mainDiv.appendChild(subtitleSpan);
 
-    const rightDiv = document.createElement("div");
-    rightDiv.className = "da_tx-right";
+      const rightDiv = document.createElement("div");
+      rightDiv.className = "da_tx-right";
 
-    const amtSpan = document.createElement("span");
-    const num = signedAmount;
-    const text =
-      num > 0 ? `+${num.toFixed(2)}` : num < 0 ? num.toFixed(2) : "0.00";
-    amtSpan.textContent = text;
+      const amtSpan = document.createElement("span");
+      const num = signedAmount;
+      const text =
+        num > 0 ? `+${num.toFixed(2)}` : num < 0 ? num.toFixed(2) : "0.00";
+      amtSpan.textContent = text;
 
-    if (num < 0) {
-      amtSpan.classList.add("da_tx-amount-negative");
-    } else if (num > 0) {
-      amtSpan.classList.add("da_tx-amount-positive");
-    }
+      if (num < 0) {
+        amtSpan.classList.add("da_tx-amount-negative"); 
+      } else if (num > 0) {
+        amtSpan.classList.add("da_tx-amount-positive"); 
+      }
 
-    rightDiv.appendChild(amtSpan);
+      rightDiv.appendChild(amtSpan);
 
-    li.appendChild(dateDiv);
-    li.appendChild(mainDiv);
-    li.appendChild(rightDiv);
+      li.appendChild(dateDiv);
+      li.appendChild(mainDiv);
+      li.appendChild(rightDiv);
 
-    daActivityListEl.appendChild(li);
-  });
-}
+      daActivityListEl.appendChild(li);
+    });
+  }
 
+  // sanskar
   if (daSettleSave) {
     daSettleSave.onclick = async () => {
       if (!settleFriend) return;
@@ -935,3 +1087,268 @@ function renderActivityList() {
       });
     }
   }
+
+  // Add Expense 
+  function resetExpenseForm() {
+    if (daExpenseForm) daExpenseForm.reset();
+    if (daExpenseErrorEl) daExpenseErrorEl.textContent = "";
+
+    if (daExpenseFriendsContainer) {
+      const checks = daExpenseFriendsContainer.querySelectorAll("input[type='checkbox']");
+      checks.forEach((c) => (c.checked = false));
+    }
+
+    if (daSplitExtraFields) daSplitExtraFields.innerHTML = "";
+  }
+
+  function closeExpenseModal() {
+    if (daExpenseModal) {
+      daExpenseModal.classList.remove("da_modal--open");
+    }
+  }
+
+  if (daAddExpenseBtn && daExpenseModal) {
+    daAddExpenseBtn.addEventListener("click", () => {
+      editingExpenseId = null;
+      editingGroupCache = null;
+      document.querySelector("#da_expenseModal .da_modal-title").textContent = "Add Expense";
+      document.querySelector("#da_expenseForm .da_settle-btn").textContent = "Add";
+
+      selectedFriendIds.clear();
+      renderSelectedChips();
+
+      if (daExpenseFriendSearch) daExpenseFriendSearch.value = "";
+      renderExpenseFriendChips("");
+
+      daExpenseFriendsContainer.style.display = "none";
+      daExpenseForm.reset();
+      daSplitTypeSelect.value = "equal";
+      rebuildSplitExtraUI();
+
+      daExpenseModal.classList.add("da_modal--open");
+    });
+  }
+
+  if (daExpenseModalClose) {
+    daExpenseModalClose.addEventListener("click", closeExpenseModal);
+  }
+  if (daExpenseCancel) {
+    daExpenseCancel.addEventListener("click", closeExpenseModal);
+  }
+  if (daExpenseModal) {
+    daExpenseModal.addEventListener("click", (e) => {
+      if (e.target === daExpenseModal) closeExpenseModal();
+    });
+  }
+
+  if (daExpenseForm) {
+    daExpenseForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (daExpenseErrorEl) daExpenseErrorEl.textContent = "";
+
+      const descEl = document.getElementById("da_expenseDesc");
+      const amountEl = document.getElementById("da_expenseAmount");
+
+      const description = descEl ? descEl.value.trim() : "";
+      const amountVal = amountEl ? parseFloat(amountEl.value) : NaN;
+      const splitType = daSplitTypeSelect ? daSplitTypeSelect.value : "equal";
+
+      if (!description) {
+        if (daExpenseErrorEl) daExpenseErrorEl.textContent = "Please enter a description.";
+        return;
+      }
+      if (isNaN(amountVal) || amountVal <= 0) {
+        if (daExpenseErrorEl) daExpenseErrorEl.textContent = "Please enter a valid amount > 0.";
+        return;
+      }
+
+      const participants = getSelectedParticipants();
+      if (!participants.length) {
+        if (daExpenseErrorEl) daExpenseErrorEl.textContent = "Select at least one person (including yourself).";
+        return;
+      }
+
+      let participantPayload = [];
+
+      if (splitType === "equal") {
+        const perShareRaw = amountVal / participants.length;
+        const perShare = Math.round(perShareRaw * 100) / 100;
+
+        participantPayload = participants.map((p) => ({
+          user_id: p.user_id,
+          share_type: "equal",
+          owed_amount: perShare,
+        }));
+      } else if (splitType === "amount") {
+        const inputs = daSplitExtraFields
+          ? daSplitExtraFields.querySelectorAll(".da_split-amount-input")
+          : [];
+
+        const amounts = [];
+        let sum = 0;
+
+        inputs.forEach((inp) => {
+          const uid = Number(inp.dataset.userId);
+          const val = parseFloat(inp.value);
+          const amt = isNaN(val) ? 0 : Math.round(val * 100) / 100;
+          amounts.push({ user_id: uid, amount: amt });
+          sum += amt;
+        });
+
+        sum = Math.round(sum * 100) / 100;
+        const totalRounded = Math.round(amountVal * 100) / 100;
+
+        if (Math.abs(sum - totalRounded) > 0.01) {
+          if (daExpenseErrorEl) {
+            daExpenseErrorEl.textContent = `Custom amounts (${sum.toFixed(
+              2
+            )}) must match the total (${totalRounded.toFixed(2)}).`;
+          }
+          return;
+        }
+
+        participantPayload = amounts.map((a) => ({
+          user_id: a.user_id,
+          share_type: "amount",
+          owed_amount: a.amount,
+        }));
+      } 
+
+      const payload = {
+        created_by: currentUser.user_id,
+        payer_id: currentUser.user_id, 
+        description,
+        amount: amountVal,
+        split_type: splitType,
+        expense_date: todayISO(),
+        participants: participantPayload,
+      };
+
+      const isEditing = editingExpenseId != null;
+      const url    = isEditing ? `${API_BASE}/expenses/${editingExpenseId}` : `${API_BASE}/expenses`;
+      const method = isEditing ? "PUT" : "POST";
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        console.log(isEditing ? "Update expense response:" : "Add expense response:", data);
+
+        if (!res.ok) {
+          if (daExpenseErrorEl) {
+            daExpenseErrorEl.textContent = data.error || (isEditing ? "Failed to update expense." : "Failed to add expense.");
+          }
+          return;
+        }
+
+        resetExpenseForm();
+        closeExpenseModal();
+
+        editingExpenseId = null;
+        editingGroupCache = null;
+        document.querySelector("#da_expenseModal .da_modal-title").textContent = "Add Expense";
+        document.querySelector("#da_expenseForm .da_settle-btn").textContent = "Add";
+
+        await loadFriends();
+        await loadExpenses();
+
+        if (currentModalFriend && daModal && daModal.classList.contains("da_modal--open")) {
+          const prevScroll = daModalTransactions ? daModalTransactions.scrollTop : 0;
+          openFriendModal(currentModalFriend);
+          requestAnimationFrame(() => {
+            if (daModalTransactions) daModalTransactions.scrollTop = prevScroll;
+          });
+        }
+
+        openInfoModal(
+          isEditing ? "Expense updated successfully." : "Expense added successfully.",
+          isEditing ? "Expense Updated" : "Expense Added"
+        );
+      } catch (err) {
+        console.error("Save error:", err);
+        if (daExpenseErrorEl) daExpenseErrorEl.textContent = "Server error while saving.";
+      }
+
+    });
+  }
+
+  // Search filter for friends
+  if (daFriendSearchEl) {
+    daFriendSearchEl.addEventListener("input", (e) => {
+      renderFriendsList(e.target.value);
+    });
+  }
+
+  if (daExpenseFriendSearch) {
+    daExpenseFriendSearch.addEventListener("focus", () => {
+      if (daExpenseFriendsContainer) {
+        daExpenseFriendsContainer.style.display = "block";
+      }
+      renderExpenseFriendChips(daExpenseFriendSearch.value || "");
+    });
+
+    daExpenseFriendSearch.addEventListener("input", (e) => {
+      if (daExpenseFriendsContainer) {
+        daExpenseFriendsContainer.style.display = "block";
+      }
+      renderExpenseFriendChips(e.target.value);
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!daExpenseModal || !daExpenseFriendsContainer || !daExpenseFriendSearch) return;
+
+    const clickedInsideSearch =
+      daExpenseFriendSearch.contains(e.target) ||
+      daExpenseFriendsContainer.contains(e.target);
+
+    const clickedInsideModal = daExpenseModal.contains(e.target);
+
+    if (clickedInsideModal && !clickedInsideSearch) {
+      daExpenseFriendsContainer.style.display = "none";
+    }
+  });
+
+  if (daShowZeroFriendsCheckbox) {
+    daShowZeroFriendsCheckbox.addEventListener("change", (e) => {
+      daShowZeroFriends = e.target.checked;
+      const searchTerm = daFriendSearchEl ? daFriendSearchEl.value : "";
+      renderFriendsList(searchTerm);
+    });
+  }
+
+  // Bottom navigation 
+  daNavButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.target;
+
+      daNavButtons.forEach((b) => b.classList.remove("da_nav-btn--active"));
+      btn.classList.add("da_nav-btn--active");
+
+      Object.keys(daSections).forEach((key) => {
+        if (daSections[key]) daSections[key].classList.remove("da_section--active");
+      });
+      if (daSections[target]) daSections[target].classList.add("da_section--active");
+
+      if (daAddExpenseBtn) {
+        daAddExpenseBtn.style.display = target === "account" ? "none" : "block";
+      }
+    });
+  });
+
+  // Logout
+  if (daLogoutBtn) {
+    daLogoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("loggedInUser");
+      openInfoModal("Logged out successfully.", "Logout");
+      window.location.href = "index.html";
+    });
+  }
+
+  loadFriends();
+  loadExpenses();
+});

@@ -9,7 +9,7 @@ h1 {
   color: #2b5eff;
 }
 
-/* Login Page  */
+/* Login Page */
 
 .in_container {
   display: flex;
@@ -337,6 +337,8 @@ h1 {
 }
 
 
+/*Deven Until*/
+
 /* Transactions */
 
 .da_transaction-list {
@@ -369,7 +371,6 @@ h1 {
   gap: 4px;
 }
 
-/* Make Edit/Delete/Cancel buttons bigger and clearer */
 .da_transaction-btn {
   padding: 10px 18px;
   font-size: 0.95rem;
@@ -396,12 +397,10 @@ h1 {
   background-color: #c0392b;
 }
 
-/* General hover for neutral/cancel */
 .da_transaction-btn:hover {
   background-color: #e3e7ed;
 }
 
-/* Slightly spread them evenly */
 .da_modal-footer--space {
   display: flex;
   justify-content: space-between;
@@ -413,7 +412,6 @@ h1 {
   color: #666;
   font-size: 0.9rem;
 }
-
 
 /* Account section */
 
@@ -545,10 +543,6 @@ h1 {
     bottom: 60px;
   }
 }
-
-
-
-
 /* Bottom navigation */
 
 .da_bottom-nav {
@@ -845,7 +839,7 @@ h1 {
   position: relative;
 }
 
-/* Dropdown panel under the search box */
+/* Dropdown panel */
 .da_expense-friends-dropdown {
   position: absolute;
   left: 0;
@@ -892,7 +886,6 @@ h1 {
 .da_expense-friends-dropdown .da_expense-friend-chip {
   margin: 4px;
 }
-
 
 /* Dashboard Activity list  */
 
