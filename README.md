@@ -155,19 +155,23 @@ The Flask backend provides the following REST API endpoints:
 
 ### Login Page
 
-_[Screenshot placeholder - To be added]_
+<img width="558" height="471" alt="image" src="https://github.com/user-attachments/assets/ac99da44-896e-493e-b5de-a5e750de2048" />
+
 
 ### Dashboard - Friends View
 
-_[Screenshot placeholder - To be added]_
+<img width="542" height="577" alt="image" src="https://github.com/user-attachments/assets/d197bebc-0d5b-48d9-abce-e994bdc09697" />
+
 
 ### Dashboard - Activity View
 
-_[Screenshot placeholder - To be added]_
+<img width="551" height="572" alt="image" src="https://github.com/user-attachments/assets/a7322558-299f-4cfb-b40d-de16e917b2b5" />
+
 
 ### Add Expense Modal
 
-_[Screenshot placeholder - To be added]_
+<img width="394" height="346" alt="image" src="https://github.com/user-attachments/assets/be79db9e-4c50-4dca-aeff-95f1ea61990b" />
+
 
 ## References
 
